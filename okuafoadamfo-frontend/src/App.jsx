@@ -6,7 +6,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home"; 
 import Error from "./components/Error";
 import About from "./pages/About";
-import PredictDisease from "./pages/predictdisease";
+import PredictDisease from "./pages/Predictdisease";
 
 const App = () => (
   <BrowserRouter>
