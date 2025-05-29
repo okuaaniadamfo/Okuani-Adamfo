@@ -14,6 +14,7 @@ import About from "./pages/About";
 // Change to this (without .jsx extension):
 import PredictDisease from "./pages/PredictDisease";
 
+
 const App = () => {
   // Add the useEffect hook here
   useEffect(() => {
