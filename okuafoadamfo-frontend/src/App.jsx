@@ -9,7 +9,8 @@ import Home from "./pages/Home";
 import Error from "./components/Error";
 import About from "./pages/About";
 // import PredictDisease from "./pages/predictdisease";
-import PredictDisease from "./pages/predictdisease";
+import PredictDisease from "./pages/PredictDisease.jsx";
+
 
 const App = () => {
   // Add the useEffect hook here
