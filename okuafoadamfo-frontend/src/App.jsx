@@ -1,16 +1,18 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { useEffect } from 'react'; 
+import { useEffect } from 'react';
 import { testConnection } from "./api";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NavBar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Home from "./pages/Home"; 
+import Home from "./pages/Home";
 import Error from "./components/Error";
 import About from "./pages/About";
-// import PredictDisease from "./pages/predictdisease";
-import PredictDisease from "./pages/PredictDisease.jsx";
+// Remove this line:
+// import PredictDisease from "./pages/PredictDisease.jsx";
 
+// Change to this (without .jsx extension):
+import PredictDisease from "./pages/PredictDisease";
 
 const App = () => {
   // Add the useEffect hook here

@@ -1,6 +1,6 @@
 [build]
-  base = "okuafoadamfo-frontend"  # Important for subdirectory projects
-  publish = "okuafoadamfo-frontend/dist"  # Must match Vite's output
+  base = "okuafoadamfo-frontend"
+  publish = "dist"  # Changed from "okuafoadamfo-frontend/dist"
   command = "npm install && npm run build"
 
 [[redirects]]
