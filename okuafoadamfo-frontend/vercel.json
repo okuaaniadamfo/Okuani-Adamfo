@@ -11,8 +11,8 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "okuafoadamfo-frontend/$1"
+      "src": "/.*",
+      "dest": "okuafoadamfo-frontend/index.html"
     }
   ]
 }
