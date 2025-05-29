@@ -12,7 +12,7 @@ import About from "./pages/About";
 // import PredictDisease from "./pages/PredictDisease.jsx";
 
 // Change to this (without .jsx extension):
-import PredictDisease from "./pages/PredictDisease";
+import predictdisease from "./pages/predictdisease";
 
 
 const App = () => {
@@ -36,7 +36,7 @@ const App = () => {
         <div className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/predict" element={<PredictDisease />} />
+            <Route path="/predict" element={<predictdisease />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Home />} />
             <Route path="/login" element={<Login />} />
