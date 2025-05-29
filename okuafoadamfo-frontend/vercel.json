@@ -10,15 +10,6 @@
       }
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "okuafoadamfo-frontend",
-      "headers": {
-        "Cache-Control": "s-maxage=0"
-      }
-    }
-  ],
   "rewrites": [
     {
       "source": "/(.*)",
