@@ -53,7 +53,7 @@ export default function Register() {
         >
           <div className="text-center mb-8">
             <h1 className="text-3xl font-extrabold text-green-900">Create Account</h1>
-            <p className="mt-2 text-gray-600">Sign up to start using Akuafo Adamfo</p>
+            <p className="mt-2 text-gray-600">Sign up to start using Okuani Adamfo</p>
           </div>
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>

@@ -75,7 +75,7 @@ const BarnIcon = () => (
 const heroItems = [
   {
     image: image4,
-    title: "Welcome to Akuafo Adamfo",
+    title: "Welcome to Okuani Adamfo",
     description:
       "Empowering farmers and researchers with AI-powered plant disease detection and multilingual image translation.",
     primaryLink: { to: "/predict", label: "Predict Disease" },
@@ -280,7 +280,7 @@ const Home = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            Why Akuafo Adamfo Matters
+            Why Okuani Adamfo Matters
           </motion.h2>
 
           <div className="grid md:grid-cols-3 gap-8">

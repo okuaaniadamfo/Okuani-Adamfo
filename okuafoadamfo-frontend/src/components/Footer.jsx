@@ -54,10 +54,10 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
             {
-              title: "About Akuafo Adamfo",
+              title: "About Okuani Adamfo",
               content: (
                 <p className="text-sm sm:text-base text-gray-300">
-                  Akuafo Adamfo leverages AI to help farmers detect plant
+                  Okuani Adamfo leverages AI to help farmers detect plant
                   diseases early and accurately. We also offer image
                   translation for multilingual support.
                 </p>
@@ -185,7 +185,7 @@ const Footer = () => {
           transition={{ delay: 1.2 }}
           className="text-center mt-12 border-t border-green-700 pt-6 text-sm sm:text-base text-gray-300"
         >
-          © {new Date().getFullYear()} Akuafo Adamfo. All rights reserved.
+          © {new Date().getFullYear()} Okuani Adamfo. All rights reserved.
         </motion.div>
       </div>
     </footer>

@@ -64,7 +64,7 @@ const NavBar = () => {
           </motion.span>
           <span>
             <span className="font-extrabold text-2xl text-green-800 tracking-tight">
-              Akuafo Adamfo
+              Okuani Adamfo
             </span>
             <span className="block text-xs text-green-600 font-medium leading-tight">
               Plant Disease AI & Image Translator

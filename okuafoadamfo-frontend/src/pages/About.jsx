@@ -50,7 +50,7 @@ const About = () => (
         initial="hidden"
         animate="visible"
       >
-        About Akuafo Adamfo
+        About Okuani Adamfo
       </motion.h1>
 
       <motion.p
@@ -78,7 +78,7 @@ const About = () => (
         animate="visible"
         custom={3}
       >
-        <span className="font-semibold text-green-800">Akuafo Adamfo</span> is
+        <span className="font-semibold text-green-800">Okuani Adamfo</span> is
         an innovative platform helping farmers, agronomists, and researchers
         detect plant diseases early using advanced AI.
       </motion.p>
@@ -104,7 +104,7 @@ const About = () => (
           custom={5}
         >
           <h2 className="text-3xl font-bold text-green-900 mb-4 text-center md:text-left">
-            Why Akuafo Adamfo?
+            Why Okuani Adamfo?
           </h2>
           <ul className="list-disc list-inside text-gray-700 text-lg space-y-2 pl-5">
             <li>Early and accurate plant disease detection</li>
