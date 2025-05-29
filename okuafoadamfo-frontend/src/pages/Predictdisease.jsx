@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function predictdisease() {
+export default function PredictDisease() {
   const [image, setImage] = useState(null);
   const [textInput, setTextInput] = useState("");
   const [isRecording, setIsRecording] = useState(false);
