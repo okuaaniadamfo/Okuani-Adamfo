@@ -106,7 +106,7 @@ This tool combines **speech recognition**, **NLP**, and **computer vision** to i
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/okuani-adamfo.git
+git clone https://github.com/okuaaniadamfo/Okuani-Adamfo.git
 cd okuaniadamfo-api
 
 2. Install dependencies
