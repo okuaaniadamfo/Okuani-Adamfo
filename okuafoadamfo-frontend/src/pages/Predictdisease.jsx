@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { uploadVoiceFile, uploadImageFile, getDiagnosis } from "../api/services.js";
 
 export default function PredictDisease() {
   const [image, setImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null); // Store actual file
   const [textInput, setTextInput] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [diagnosis, setDiagnosis] = useState(null);
+  const [error, setError] = useState("");
   const recognitionRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
   useEffect(() => {
     if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
@@ -30,6 +37,7 @@ export default function PredictDisease() {
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
       setIsRecording(false);
+      setError("Speech recognition error: " + event.error);
     };
 
     recognition.onend = () => {
@@ -41,28 +49,103 @@ export default function PredictDisease() {
     const file = e.target.files[0];
     if (file) {
       setImage(URL.createObjectURL(file));
+      setImageFile(file); // Store the actual file for upload
     } else {
       setImage(null);
+      setImageFile(null);
     }
   };
 
-  const startRecording = () => {
-    if (recognitionRef.current && !isRecording) {
-      recognitionRef.current.start();
-      setIsRecording(true);
+  const startRecording = async () => {
+    try {
+      // Start audio recording for backend upload
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
+        
+        // Upload audio to backend
+        try {
+          setIsLoading(true);
+          const result = await uploadVoiceFile(audioFile);
+          console.log('Voice upload result:', result);
+          if (result.transcription) {
+            setVoiceTranscript(result.transcription);
+            setTextInput(prev => prev + " " + result.transcription);
+          }
+        } catch (error) {
+          console.error('Error uploading voice:', error);
+          setError("Failed to process voice input");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      mediaRecorder.start();
+
+      // Also start speech recognition for real-time feedback
+      if (recognitionRef.current && !isRecording) {
+        recognitionRef.current.start();
+        setIsRecording(true);
+      }
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      setError("Failed to start recording");
     }
   };
 
   const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    }
+    
     if (recognitionRef.current && isRecording) {
       recognitionRef.current.stop();
       setIsRecording(false);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Submit prediction request (mock)");
+    setIsLoading(true);
+    setError("");
+    setDiagnosis(null);
+
+    try {
+      let imageResult = null;
+      
+      // Upload image if present
+      if (imageFile) {
+        imageResult = await uploadImageFile(imageFile);
+        console.log('Image upload result:', imageResult);
+      }
+
+      // Get diagnosis
+      const diagnosisData = {
+        symptoms: textInput,
+        voiceTranscript: voiceTranscript,
+        imageAnalysis: imageResult
+      };
+
+      const diagnosisResult = await getDiagnosis(diagnosisData);
+      setDiagnosis(diagnosisResult);
+      console.log('Diagnosis result:', diagnosisResult);
+
+    } catch (error) {
+      console.error('Error getting diagnosis:', error);
+      setError("Failed to get diagnosis. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -75,6 +158,17 @@ export default function PredictDisease() {
       >
         Predict Crop Disease
       </motion.h1>
+
+      {/* Error Display */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="max-w-xl w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+        >
+          {error}
+        </motion.div>
+      )}
 
       <motion.form
         onSubmit={handleSubmit}
@@ -116,7 +210,10 @@ export default function PredictDisease() {
                 />
                 <motion.button
                   type="button"
-                  onClick={() => setImage(null)}
+                  onClick={() => {
+                    setImage(null);
+                    setImageFile(null);
+                  }}
                   className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold shadow-md transition-transform transform"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
@@ -157,13 +254,14 @@ export default function PredictDisease() {
             <motion.button
               type="button"
               onClick={isRecording ? stopRecording : startRecording}
+              disabled={isLoading}
               className={`px-6 py-2 rounded-full font-semibold text-white transition-transform transform ${
                 isRecording
                   ? "bg-red-600 hover:bg-red-700"
                   : "bg-green-600 hover:bg-green-700"
-              }`}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              whileHover={{ scale: isLoading ? 1 : 1.1 }}
+              whileTap={{ scale: isLoading ? 1 : 0.95 }}
             >
               {isRecording ? "Stop Recording" : "Start Recording"}
             </motion.button>
@@ -196,13 +294,53 @@ export default function PredictDisease() {
         {/* Submit */}
         <motion.button
           type="submit"
-          className="w-full py-3 bg-green-700 hover:bg-green-800 text-white font-bold rounded-lg transition-transform transform"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          disabled={isLoading}
+          className={`w-full py-3 font-bold rounded-lg transition-transform transform ${
+            isLoading 
+              ? "bg-gray-400 cursor-not-allowed" 
+              : "bg-green-700 hover:bg-green-800 text-white"
+          }`}
+          whileHover={{ scale: isLoading ? 1 : 1.05 }}
+          whileTap={{ scale: isLoading ? 1 : 0.95 }}
         >
-          Predict Disease
+          {isLoading ? "Processing..." : "Predict Disease"}
         </motion.button>
       </motion.form>
+
+      {/* Diagnosis Results */}
+      <AnimatePresence>
+        {diagnosis && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-xl w-full bg-white rounded-xl shadow-lg p-8 mt-8"
+          >
+            <h2 className="text-2xl font-bold text-green-800 mb-4">Diagnosis Results</h2>
+            <div className="space-y-4">
+              {diagnosis.disease && (
+                <div>
+                  <h3 className="font-semibold text-green-700">Detected Disease:</h3>
+                  <p className="text-gray-700">{diagnosis.disease}</p>
+                </div>
+              )}
+              {diagnosis.confidence && (
+                <div>
+                  <h3 className="font-semibold text-green-700">Confidence:</h3>
+                  <p className="text-gray-700">{(diagnosis.confidence * 100).toFixed(1)}%</p>
+                </div>
+              )}
+              {diagnosis.recommendations && (
+                <div>
+                  <h3 className="font-semibold text-green-700">Recommendations:</h3>
+                  <p className="text-gray-700">{diagnosis.recommendations}</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
