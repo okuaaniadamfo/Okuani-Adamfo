@@ -1,19 +1,73 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { uploadVoiceFile, uploadImageFile, getDiagnosis } from "../api/services.js";
+import { uploadVoiceFile, uploadImageFile } from "../api/services.js";
 
 export default function PredictDisease() {
   const [image, setImage] = useState(null);
-  const [imageFile, setImageFile] = useState(null); // Store actual file
+  const [imageFile, setImageFile] = useState(null);
   const [textInput, setTextInput] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [diagnosis, setDiagnosis] = useState(null);
   const [error, setError] = useState("");
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [supportedLanguages, setSupportedLanguages] = useState({});
+  const [selectedLanguage, setSelectedLanguage] = useState("tw");
+  const [availableSpeakers, setAvailableSpeakers] = useState([]);
+  const [selectedSpeaker, setSelectedSpeaker] = useState("");
+  const [solutionAudioBase64, setSolutionAudioBase64] = useState(null);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
+
   const recognitionRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const speechSynthesisRef = useRef(window.speechSynthesis);
+
+  const languagesWithSpeakers = ["tw", "ee", "ki"];
+
+  useEffect(() => {
+    async function fetchLanguages() {
+      try {
+        const res = await fetch("https://okuani-adamfo-api.onrender.com/upload/languages");
+        const data = await res.json();
+        if (data.supportedLanguages) {
+          setSupportedLanguages(data.supportedLanguages);
+          if (data.defaultLanguage) {
+            setSelectedLanguage(data.defaultLanguage);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch supported languages:", err);
+      }
+    }
+    fetchLanguages();
+  }, []);
+
+  useEffect(() => {
+    async function fetchSpeakers() {
+      if (!languagesWithSpeakers.includes(selectedLanguage)) {
+        setAvailableSpeakers([]);
+        setSelectedSpeaker("");
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `https://okuani-adamfo-api.onrender.com/output/speakers/${selectedLanguage}`
+        );
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        setAvailableSpeakers(data.availableSpeakers || []);
+        setSelectedSpeaker(data.defaultSpeaker || "");
+      } catch (err) {
+        console.error("Failed to fetch speakers:", err);
+        setAvailableSpeakers([]);
+        setSelectedSpeaker("");
+      }
+    }
+    fetchSpeakers();
+  }, [selectedLanguage]);
 
   useEffect(() => {
     if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
@@ -23,9 +77,10 @@ export default function PredictDisease() {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
+    recognition.lang = selectedLanguage === "en" ? "en-US" : selectedLanguage;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
+
     recognitionRef.current = recognition;
 
     recognition.onresult = (event) => {
@@ -43,13 +98,13 @@ export default function PredictDisease() {
     recognition.onend = () => {
       setIsRecording(false);
     };
-  }, []);
+  }, [selectedLanguage]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(URL.createObjectURL(file));
-      setImageFile(file); // Store the actual file for upload
+      setImageFile(file);
     } else {
       setImage(null);
       setImageFile(null);
@@ -58,7 +113,6 @@ export default function PredictDisease() {
 
   const startRecording = async () => {
     try {
-      // Start audio recording for backend upload
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -69,20 +123,18 @@ export default function PredictDisease() {
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
-        
-        // Upload audio to backend
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+        const audioFile = new File([audioBlob], "recording.wav", { type: "audio/wav" });
+
         try {
           setIsLoading(true);
           const result = await uploadVoiceFile(audioFile);
-          console.log('Voice upload result:', result);
           if (result.transcription) {
             setVoiceTranscript(result.transcription);
-            setTextInput(prev => prev + " " + result.transcription);
+            setTextInput((prev) => prev + " " + result.transcription);
           }
         } catch (error) {
-          console.error('Error uploading voice:', error);
+          console.error("Error uploading voice:", error);
           setError("Failed to process voice input");
         } finally {
           setIsLoading(false);
@@ -90,24 +142,22 @@ export default function PredictDisease() {
       };
 
       mediaRecorder.start();
-
-      // Also start speech recognition for real-time feedback
       if (recognitionRef.current && !isRecording) {
         recognitionRef.current.start();
         setIsRecording(true);
       }
     } catch (error) {
-      console.error('Error starting recording:', error);
+      console.error("Error starting recording:", error);
       setError("Failed to start recording");
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
       mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
     }
-    
+
     if (recognitionRef.current && isRecording) {
       recognitionRef.current.stop();
       setIsRecording(false);
@@ -119,193 +169,208 @@ export default function PredictDisease() {
     setIsLoading(true);
     setError("");
     setDiagnosis(null);
+    setSolutionAudioBase64(null); // clear old audio
 
     try {
       let imageResult = null;
-      
-      // Upload image if present
       if (imageFile) {
         imageResult = await uploadImageFile(imageFile);
-        console.log('Image upload result:', imageResult);
+        if (imageResult) {
+          setDiagnosis(imageResult);
+        } else {
+          setError("No prediction data returned.");
+        }
       }
-
-      // Get diagnosis
-      const diagnosisData = {
-        symptoms: textInput,
-        voiceTranscript: voiceTranscript,
-        imageAnalysis: imageResult
-      };
-
-      const diagnosisResult = await getDiagnosis(diagnosisData);
-      setDiagnosis(diagnosisResult);
-      console.log('Diagnosis result:', diagnosisResult);
-
     } catch (error) {
-      console.error('Error getting diagnosis:', error);
-      setError("Failed to get diagnosis. Please try again.");
+      console.error("Prediction error:", error);
+      setError("Failed to get prediction. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleReadAloud = () => {
+    if (!diagnosis?.prediction?.raw_response) return;
+
+    if (isSpeaking) {
+      speechSynthesisRef.current.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    const { predicted_class, confidence, description, solutions } = diagnosis.prediction.raw_response;
+    const fullText = `
+      The predicted disease is ${predicted_class}.
+      Confidence level: ${confidence}.
+      Description: ${description}.
+      Recommended solutions: ${solutions.join(". ")}.
+    `;
+
+    const utterance = new SpeechSynthesisUtterance(fullText);
+    utterance.lang = selectedLanguage === "en" ? "en-US" : selectedLanguage;
+    utterance.rate = 1;
+    utterance.onend = () => setIsSpeaking(false);
+
+    speechSynthesisRef.current.speak(utterance);
+    setIsSpeaking(true);
+  };
+
+  // Updated generateSolutionAudio function with fixes
+  const generateSolutionAudio = async () => {
+    if (!diagnosis?.prediction?.raw_response?.solutions?.length) {
+      setError("No solutions to convert to audio.");
+      return;
+    }
+    if (!selectedSpeaker) {
+      setError("Please select a speaker.");
+      return;
+    }
+    setError("");
+    setIsAudioLoading(true);
+    setSolutionAudioBase64(null);
+
+    // Join solutions into one string for API
+    // diagnosis.prediction.raw_response.solutions is an array of strings
+const solutionsArray = diagnosis.prediction.raw_response.solutions;
+
+// Prepare request body exactly as API expects:
+const requestBody = {
+  prediction: {
+    raw_response: {
+      solutions: solutionsArray
+    }
+  },
+  language: selectedLanguage,
+  speaker_id: selectedSpeaker  // Use speaker_id, not speaker
+};
+
+
+    console.log("Sending request to solutions-to-audio API:", requestBody);
+
+    try {
+      const res = await fetch("https://okuani-adamfo-api.onrender.com/upload/solutions-to-audio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("API error response:", errorText);
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (data.success && data.audio) {
+        setSolutionAudioBase64(data.audio);
+      } else {
+        setError("Failed to generate audio from solutions.");
+      }
+    } catch (err) {
+      console.error("Error generating solution audio:", err);
+      setError("Error generating solution audio.");
+    } finally {
+      setIsAudioLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-green-50 flex flex-col items-center py-12 px-4 pt-[90px]">
-      <motion.h1
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-4xl font-extrabold text-green-900 mb-8"
-      >
+    <div className="min-h-screen bg-green-50 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 pt-[90px]">
+      <motion.h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-green-900 mb-8 text-center">
         Predict Crop Disease
       </motion.h1>
 
-      {/* Error Display */}
-      {error && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="max-w-xl w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
-        >
-          {error}
-        </motion.div>
-      )}
+      {error && <div className="text-red-600 mb-4 text-center">{error}</div>}
 
-      <motion.form
-        onSubmit={handleSubmit}
-        className="max-w-xl w-full bg-white rounded-xl shadow-lg p-8 space-y-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
-        {/* Image Input */}
+      <form onSubmit={handleSubmit} className="max-w-xl w-full bg-white rounded-xl shadow-lg p-6 sm:p-8 space-y-6">
+        {/* Language Select */}
         <div>
-          <label
-            htmlFor="imageInput"
-            className="block text-green-800 font-semibold mb-2"
+          <label htmlFor="languageSelect" className="font-semibold">Select Language</label>
+          <select
+            id="languageSelect"
+            value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(e.target.value)}
+            className="w-full border border-gray-300 p-2 rounded mt-1"
           >
-            Upload Crop Image
-          </label>
-          <input
-            type="file"
-            id="imageInput"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="block w-full text-green-700 cursor-pointer rounded border border-green-300 p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <AnimatePresence>
-            {image && (
-              <motion.div
-                key="image-container"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.5 }}
-                className="mt-4 flex flex-col items-center"
-              >
-                <motion.img
-                  src={image}
-                  alt="Preview"
-                  className="rounded-lg max-h-64 object-contain border border-green-300 shadow-md mb-3"
-                  layout
-                />
-                <motion.button
-                  type="button"
-                  onClick={() => {
-                    setImage(null);
-                    setImageFile(null);
-                  }}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold shadow-md transition-transform transform"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Remove Picture
-                </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            {Object.entries(supportedLanguages).map(([code, name]) => (
+              <option key={code} value={code}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Speaker Select */}
+        {availableSpeakers.length > 0 && (
+          <div>
+            <label htmlFor="speakerSelect" className="font-semibold">Select Speaker</label>
+            <select
+              id="speakerSelect"
+              value={selectedSpeaker}
+              onChange={(e) => setSelectedSpeaker(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded mt-1"
+            >
+              {availableSpeakers.map((spk) => (
+                <option key={spk} value={spk}>
+                  {spk}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Image Upload */}
+        <div>
+          <label className="font-semibold">Upload Crop Image  </label>
+          <input type="file" accept="image/*" onChange={handleImageChange} className="mt-1" />
+          {image && (
+            <div className="mt-3">
+              <img src={image} alt="Preview" className="max-h-48 rounded shadow" />
+            </div>
+          )}
         </div>
 
         {/* Text Input */}
         <div>
-          <label
-            htmlFor="textInput"
-            className="block text-green-800 font-semibold mb-2"
-          >
-            Describe Symptoms / Notes
-          </label>
-          <motion.textarea
-            id="textInput"
+          <label className="font-semibold">Symptom Description</label>
+          <textarea
+            className="w-full border border-gray-300 p-2 rounded mt-1"
             rows={4}
-            className="w-full border border-green-300 rounded p-3 resize-none focus:outline-none focus:ring-2 focus:ring-green-500"
-            placeholder="Describe any visible symptoms or issues..."
+            placeholder="Describe symptoms..."
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
-            whileFocus={{ scale: 1.02, boxShadow: "0 0 8px rgba(34,197,94,0.6)" }}
-            transition={{ type: "spring", stiffness: 300 }}
           />
         </div>
 
-        {/* Voice Input */}
-        <div>
-          <label className="block text-green-800 font-semibold mb-2">
-            Voice Input (Click to Record)
-          </label>
-          <div className="flex items-center space-x-4">
-            <motion.button
-              type="button"
-              onClick={isRecording ? stopRecording : startRecording}
-              disabled={isLoading}
-              className={`px-6 py-2 rounded-full font-semibold text-white transition-transform transform ${
-                isRecording
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-green-600 hover:bg-green-700"
-              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-              whileHover={{ scale: isLoading ? 1 : 1.1 }}
-              whileTap={{ scale: isLoading ? 1 : 0.95 }}
-            >
-              {isRecording ? "Stop Recording" : "Start Recording"}
-            </motion.button>
-            <motion.span
-              className={`text-sm font-semibold ${
-                isRecording ? "text-red-600" : "text-green-700"
-              }`}
-              animate={{ opacity: isRecording ? 1 : 0.7, scale: isRecording ? 1.2 : 1 }}
-              transition={{ duration: 0.4, yoyo: Infinity }}
-            >
-              {isRecording ? "Recording..." : "Not recording"}
-            </motion.span>
-          </div>
-          <AnimatePresence>
-            {voiceTranscript && (
-              <motion.p
-                key="transcript"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.5 }}
-                className="mt-2 text-gray-700 italic border border-green-200 rounded p-2 max-h-24 overflow-auto bg-green-50"
-              >
-                {voiceTranscript}
-              </motion.p>
-            )}
-          </AnimatePresence>
+        {/* Voice Controls */}
+        <div className="flex items-center space-x-4">
+          <button
+            type="button"
+            onClick={isRecording ? stopRecording : startRecording}
+            className={`px-4 py-2 rounded text-white ${
+              isRecording ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
+            }`}
+          >
+            {isRecording ? "Stop Recording" : "Start Recording"}
+          </button>
+          <div className="italic text-gray-600">Voice transcript: {voiceTranscript}</div>
         </div>
 
-        {/* Submit */}
-        <motion.button
-          type="submit"
-          disabled={isLoading}
-          className={`w-full py-3 font-bold rounded-lg transition-transform transform ${
-            isLoading 
-              ? "bg-gray-400 cursor-not-allowed" 
-              : "bg-green-700 hover:bg-green-800 text-white"
-          }`}
-          whileHover={{ scale: isLoading ? 1 : 1.05 }}
-          whileTap={{ scale: isLoading ? 1 : 0.95 }}
-        >
-          {isLoading ? "Processing..." : "Predict Disease"}
-        </motion.button>
-      </motion.form>
+        {/* Submit Button */}
+        <div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-2 rounded"
+          >
+            {isLoading ? "Predicting..." : "Predict Disease"}
+          </button>
+        </div>
+      </form>
 
       {/* Diagnosis Results */}
       <AnimatePresence>
@@ -314,28 +379,54 @@ export default function PredictDisease() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-xl w-full bg-white rounded-xl shadow-lg p-8 mt-8"
+            className="max-w-xl w-full mt-10 bg-white rounded-xl shadow-lg p-6"
           >
-            <h2 className="text-2xl font-bold text-green-800 mb-4">Diagnosis Results</h2>
-            <div className="space-y-4">
-              {diagnosis.disease && (
-                <div>
-                  <h3 className="font-semibold text-green-700">Detected Disease:</h3>
-                  <p className="text-gray-700">{diagnosis.disease}</p>
-                </div>
-              )}
-              {diagnosis.confidence && (
-                <div>
-                  <h3 className="font-semibold text-green-700">Confidence:</h3>
-                  <p className="text-gray-700">{(diagnosis.confidence * 100).toFixed(1)}%</p>
-                </div>
-              )}
-              {diagnosis.recommendations && (
-                <div>
-                  <h3 className="font-semibold text-green-700">Recommendations:</h3>
-                  <p className="text-gray-700">{diagnosis.recommendations}</p>
-                </div>
+            <h2 className="text-xl font-bold text-green-900 mb-4 text-center">Diagnosis Results</h2>
+            <div className="space-y-3">
+              <p>
+                <strong>Predicted Disease:</strong> {diagnosis.prediction.raw_response.predicted_class}
+              </p>
+              <p>
+                <strong>Confidence:</strong> {diagnosis.prediction.raw_response.confidence}
+              </p>
+              <p>
+                <strong>Description:</strong> {diagnosis.prediction.raw_response.description}
+              </p>
+              <p>
+                <strong>Solutions:</strong>
+              </p>
+              <ul className="list-disc list-inside">
+                {diagnosis.prediction.raw_response.solutions.map((sol, idx) => (
+                  <li key={idx}>{sol}</li>
+                ))}
+              </ul>
+
+              <div className="flex space-x-4 mt-6 justify-center">
+                <button
+                  onClick={handleReadAloud}
+                  disabled={isSpeaking}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                >
+                  {isSpeaking ? "Speaking..." : "Read Aloud"}
+                </button>
+
+                {availableSpeakers.length > 0 && (
+                  <button
+                    onClick={generateSolutionAudio}
+                    disabled={isAudioLoading}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                  >
+                    {isAudioLoading ? "Generating Audio..." : "Generate Solution Audio"}
+                  </button>
+                )}
+              </div>
+
+              {/* Audio Playback */}
+              {solutionAudioBase64 && (
+                <audio controls className="mt-4 w-full">
+                  <source src={`data:audio/mp3;base64,${solutionAudioBase64}`} type="audio/mp3" />
+                  Your browser does not support the audio element.
+                </audio>
               )}
             </div>
           </motion.div>

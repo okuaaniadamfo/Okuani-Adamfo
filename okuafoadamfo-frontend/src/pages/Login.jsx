@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { Loader2, Mail, Lock, Leaf } from "lucide-react";
+import { Loader2, Lock, User, Leaf } from "lucide-react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -19,18 +19,36 @@ const fadeUp = {
 
 const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
     try {
-      await new Promise((res) => setTimeout(res, 1500));
-      navigate("/dashboard");
+      const res = await fetch("https://okuani-adamfo-api.onrender.com/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Login successful!");
+        // Optional: Save token or user data here
+        // localStorage.setItem("token", data.token);
+        setTimeout(() => navigate("/dashboard"), 500);
+      } else {
+        alert(data.error || "Invalid username or password");
+      }
     } catch (err) {
-      toast.error(err.message || "Login failed");
+      alert("Network error. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -38,25 +56,6 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-green-50 to-green-100 flex items-center justify-center px-4 py-12 overflow-hidden">
-      {/* Floating SVG decoration (optional) */}
-      <div className="absolute top-0 left-0 w-48 h-48 opacity-20 animate-spin-slow">
-        <svg viewBox="0 0 32 32" fill="none">
-          <ellipse cx="16" cy="16" rx="14" ry="14" fill="#34D399" />
-          <path
-            d="M16 6C10 14 18 18 12 26"
-            stroke="#065F46"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          <path
-            d="M16 6C22 14 14 18 20 26"
-            stroke="#047857"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
-
       <motion.div
         className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-green-100 p-8 z-10"
         variants={fadeUp}
@@ -79,23 +78,23 @@ const Login = () => {
           initial="hidden"
           animate="visible"
         >
-          {/* Email Input */}
+          {/* Username Input */}
           <motion.div className="space-y-2" custom={2} variants={fadeUp}>
-            <label htmlFor="email" className="text-sm text-gray-700 font-medium">
-              Email
+            <label htmlFor="username" className="text-sm text-gray-700 font-medium">
+              Username
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                <Mail className="h-4 w-4" />
+                <User className="h-4 w-4" />
               </span>
               <input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
+                id="username"
+                type="text"
+                placeholder="john_doe"
                 className="w-full border rounded-lg py-2 pl-10 pr-3 shadow-sm focus:ring-2 focus:ring-green-300 focus:outline-none"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
           </motion.div>
@@ -103,10 +102,7 @@ const Login = () => {
           {/* Password Input */}
           <motion.div className="space-y-2" custom={3} variants={fadeUp}>
             <div className="flex items-center justify-between">
-              <label
-                htmlFor="password"
-                className="text-sm text-gray-700 font-medium"
-              >
+              <label htmlFor="password" className="text-sm text-gray-700 font-medium">
                 Password
               </label>
               <Link
@@ -147,10 +143,7 @@ const Login = () => {
         <motion.div className="mt-6 text-center text-sm" variants={fadeUp} custom={5}>
           <p className="text-gray-600">
             Don’t have an account?{" "}
-            <Link
-              to="/register"
-              className="font-medium text-green-600 hover:text-green-800"
-            >
+            <Link to="/register" className="font-medium text-green-600 hover:text-green-800">
               Register now
             </Link>
           </p>
