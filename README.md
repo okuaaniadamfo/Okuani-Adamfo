@@ -50,33 +50,33 @@ This tool combines **speech recognition**, **NLP**, and **computer vision** to i
 
 ## 🚀 Development Phases
 
-### **Phase 1: Planning & Setup (May 19–20)**
+### **Phase 1: Planning & Setup**
 - Team organization and role definition
 - GitHub repo setup, environment config
 - Initial research and data gathering
 
-### **Phase 2: Core Feature Development (May 21–24)**
+### **Phase 2: Core Feature Development**
 - 🔊 Voice input + ASR integration
 - 🧠 NLP symptom classification
 - 🖼 Crop image recognition (pre-trained model)
 - 🔗 Merge multi-modal inputs for diagnosis
 
-### **Phase 3: Output & Localization (May 24–25)**
+### **Phase 3: Output & Localization**
 - Translate outputs via Ghana NLP
 - Generate voice feedback using TTS
 
-### **Phase 4: UI & User Experience (May 21–26)**
+### **Phase 4: UI & User Experience**
 - Voice record button
 - Image upload UI
 - Result display (text/audio)
 - Accessibility features (icons, audio prompts)
 
-### **Phase 5: Testing & Feedback (May 26–27)**
+### **Phase 5: Testing & Feedback**
 - Test input combinations (voice-only, image-only, both)
 - Cross-device testing
 - Farmer feedback if possible
 
-### **Phase 6: Final Polish & Presentation (May 28)**
+### **Phase 6: Final Polish & Presentation**
 - UI finalization, speed tuning
 - Presentation slide deck + demo
 - Video walkthrough (if applicable)
@@ -106,7 +106,7 @@ This tool combines **speech recognition**, **NLP**, and **computer vision** to i
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/okuani-adamfo.git
+git clone https://github.com/okuaaniadamfo/Okuani-Adamfo.git
 cd okuaniadamfo-api
 
 2. Install dependencies
@@ -130,12 +130,15 @@ Add your URI to .env as MONGO_URI
 
 
 📤 API Endpoints
-| **Endpoint**       | **Method** | **Description**                                 |
-| ------------------ | ---------- | ----------------------------------------------- |
-| `/upload/voice`    | `POST`     | Upload audio for ASR (voice input)              |
-| `/upload/image`    | `POST`     | Upload image for crop disease detection         |
-| `/diagnose`        | `POST`     | Combine voice and/or image into diagnosis       |
-| `/output/localize` | `POST`     | Translate and generate speech in local language |
+
+| **Endpoint**        | **Method** | **Description**                                 |
+| ------------------- | ---------- | ----------------------------------------------- |
+| `/auth/register`    | `POST`     | Register a new user                             |
+| `/auth/login`       | `POST`     | Log in an existing user and receive JWT token   |
+| `/upload/voice`     | `POST`     | Upload audio for ASR (voice input)              |
+| `/upload/image`     | `POST`     | Upload image for crop disease detection         |
+| `/diagnose`         | `POST`     | Combine voice and/or image into diagnosis       |
+| `/output/localize`  | `POST`     | Translate and generate speech in local language |
 
 
 ---
