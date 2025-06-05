@@ -102,7 +102,11 @@ const PlanCard = ({ plan }) => {
         
         <div className="mb-4">
           <div className="flex items-baseline gap-1">
+<<<<<<< HEAD
             <span className="text-4xl font-bold text-gray-900">₵{plan.price}</span>
+=======
+            <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
+>>>>>>> 6f29f5c84a8dded6ddc1ac60409c0ef95734ec11
             <span className="text-gray-600">/month</span>
           </div>
           <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
