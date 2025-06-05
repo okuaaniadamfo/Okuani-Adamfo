@@ -19,8 +19,8 @@ const App = () => (
       <div className="flex-grow">
         <Routes>
           {/* Redirect root path to login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          
+          <Route path="/" element={ <Home />} />
+
           {/* Move Home to a different route if you want to access it later */}
           <Route path="/home" element={<Home />} />
           

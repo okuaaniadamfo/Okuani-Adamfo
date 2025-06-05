@@ -124,7 +124,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 via-white to-green-100">
-      <main className="flex-grow flex items-center justify-center px-4 py-8">
+      <main className="flex-grow flex items-center justify-center px-4 py-8 pt-25">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-green-100 p-8 relative">
           {/* Success/Error Messages */}
           {errors.success && (

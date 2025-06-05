@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { motion, AnimatePresence, useScroll, useTransform, useInView } from "framer-motion";
 import { ChevronRight, Play, Users, TrendingUp, Globe, Leaf, Camera, BookOpen, ArrowRight, Check, Star } from "lucide-react";
 import woman1 from "../assets/woman1.jpg";
@@ -32,14 +32,20 @@ const SeedIcon = ({ className = "h-12 w-12" }) => (
   </svg>
 );
 
+// Utility to check login status (replace with your real auth logic)
+const isLoggedIn = () => {
+  // Example: check for a token in localStorage
+  return !!localStorage.getItem("token");
+};
+
 const heroItems = [
   {
-    image: woman1, // use the imported image variable
+    image: adjoa, // use the imported image variable
     title: "AI-Powered Crop Protection",
     subtitle: "Welcome to Okuani Adamfo",
     description: "Revolutionizing agriculture with intelligent disease detection and multilingual support for farmers worldwide.",
     primaryLink: { to: "/predict", label: "Start Detection", icon: Camera },
-    secondaryLink: { to: "/community", label: "Join Community", icon: Users },
+    secondaryLink: { to: "/community", label: "Join Our Community", icon: Users },
     stats: [
       { value: "50+", label: "Farmers Helped" },
       { value: "80%", label: "Model Accuracy Rate" },
@@ -51,8 +57,8 @@ const heroItems = [
     title: "Break Language Barriers",
     subtitle: "Multilingual Translation",
     description: "Advanced image-to-text translation that makes agricultural knowledge accessible in your native language.",
-    primaryLink: { to: "/translate", label: "Try Translation", icon: Globe },
-    secondaryLink: { to: "/learn", label: "Learn More", icon: BookOpen },
+    primaryLink: { to: "/predict", label: "Try Translation", icon: Globe },
+    secondaryLink: { to: "/about", label: "Learn More", icon: BookOpen },
     stats: [
       { value: "7+", label: "Languages" },
       { value: "1M+", label: "Translations" },
@@ -60,11 +66,11 @@ const heroItems = [
     ]
   },
   {
-    image: adjoa, 
+    image: woman1, 
     title: "Sustainable Farming Future",
     subtitle: "Empowering Growth",
     description: "Join thousands of farmers using smart technology to increase yields while protecting the environment.",
-    primaryLink: { to: "/login", label: "Get Started", icon: TrendingUp },
+    primaryLink: { to: "/login", label: "Get Started", icon: TrendingUp }, // This will be handled in logic below
     secondaryLink: { to: "/register", label: "Sign Up Free", icon: ArrowRight },
     stats: [
       { value: "40%", label: "Yield Increase" },
@@ -156,10 +162,6 @@ const StatCounter = ({ value, label, delay = 0 }) => {
 
 const HeroSection = () => {
   const navigate = useNavigate();
-  const handleNavigate = (path) => {
-    navigate(path);
-  };
-
   const [current, setCurrent] = useState(0);
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
@@ -172,6 +174,11 @@ const HeroSection = () => {
   }, []);
 
   const currentItem = heroItems[current];
+
+  // Button navigation logic (no login check)
+  const handleButtonClick = (to) => {
+    navigate(to);
+  };
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-green-900 via-green-800 to-green-700">
@@ -224,7 +231,7 @@ const HeroSection = () => {
                   className="group flex items-center gap-3 px-8 py-4 bg-white text-green-800 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => handleNavigate(currentItem.primaryLink.to)}
+                  onClick={() => handleButtonClick(currentItem.primaryLink.to)}
                 >
                   <currentItem.primaryLink.icon className="h-5 w-5" />
                   {currentItem.primaryLink.label}
@@ -235,7 +242,7 @@ const HeroSection = () => {
                   className="group flex items-center gap-3 px-8 py-4 bg-transparent border-2 border-white text-white rounded-2xl font-semibold text-lg hover:bg-white hover:text-green-800 transition-all duration-300"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => handleNavigate(currentItem.secondaryLink.to)}
+                  onClick={() => handleButtonClick(currentItem.secondaryLink.to)}
                 >
                   <currentItem.secondaryLink.icon className="h-5 w-5" />
                   {currentItem.secondaryLink.label}
@@ -330,30 +337,28 @@ const HeroSection = () => {
 
 // Enhanced Features Section
 const FeaturesSection = () => {
+  const navigate = useNavigate();
   const features = [
     {
       title: "AI Disease Detection",
-      description: "Advanced machine learning algorithms identify plant diseases with 95% accuracy in seconds.",
-      image: image1, // use imported image
+      description: "Machine learning algorithms identify plant diseases with high accuracy in seconds.",
+      image: image1,
       icon: Camera,
       benefits: ["Instant Results", "High Accuracy", "Expert Recommendations"],
-      // color: "from-blue-500 to-blue-600"
     },
     {
       title: "Multilingual Support",
       description: "Break down language barriers with real-time translation in 7+ local languages.",
-      image: language, 
+      image: language,
       icon: Globe,
       benefits: ["7+ Languages", "Real-time Translation", "Cultural Context"],
-      // color: "from-purple-500 to-purple-600"
     },
     {
       title: "Farmer Empowerment",
       description: "Comprehensive tools and resources to help farmers increase yields sustainably.",
-      image: adjoa, 
+      image: adjoa,
       icon: TrendingUp,
       benefits: ["Yield Optimization", "Sustainable Practices", "Expert Support"],
-      // color: "from-green-500 to-green-600"
     },
   ];
 
@@ -422,8 +427,11 @@ const FeaturesSection = () => {
                   ))}
                 </div>
 
-                {/* CTA Button */}
-                <button className="group/btn w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-2xl font-semibold hover:bg-gray-800 transition-colors">
+                {/* Learn More button navigates to /about */}
+                <button
+                  className="group/btn w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-2xl font-semibold hover:bg-gray-800 transition-colors"
+                  onClick={() => navigate("/about")}
+                >
                   Learn More
                   <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                 </button>

@@ -129,8 +129,13 @@ const NavBar = () => {
                   const isCurrentPage = location.pathname === link.to;
                   const activeItems = getActiveItemsForAuthPage();
                   const isActiveOnAuthPage = activeItems.includes(link.to);
-                  const shouldBlur = isAuthPage && !isActiveOnAuthPage;
-                  
+                  // Only blur on auth pages, but always keep login/register links clickable
+                  const shouldBlur = false
+                    // isAuthPage &&
+                    // !isActiveOnAuthPage &&
+                    // link.to !== "/login" &&
+                    // link.to !== "/register";
+
                   return (
                     <motion.div
                       key={link.to}
@@ -143,24 +148,28 @@ const NavBar = () => {
                         to={link.to}
                         className={`text-green-800 font-medium relative group transition-all duration-300 ${
                           shouldBlur 
-                            ? "blur-sm opacity-40 pointer-events-none" 
-                            : isCurrentPage 
-                              ? "text-green-600 font-bold" 
-                              : ""
+                            ? "blur-sm opacity-40 pointer-events-none"
+                            : isCurrentPage
+                            ? "text-green-600 font-bold"
+                            : ""
                         }`}
                       >
-                        <span className={`transition-colors ${
-                          isCurrentPage 
-                            ? "text-green-600" 
-                            : "group-hover:text-green-600"
-                        }`}>
+                        <span
+                          className={`transition-colors ${
+                            isCurrentPage
+                              ? "text-green-600"
+                              : "group-hover:text-green-600"
+                          }`}
+                        >
                           {link.label}
                         </span>
-                        <span className={`absolute left-0 -bottom-1 h-0.5 bg-green-600 transition-all ${
-                          isCurrentPage 
-                            ? "w-full" 
-                            : "w-0 group-hover:w-full"
-                        }`}></span>
+                        <span
+                          className={`absolute left-0 -bottom-1 h-0.5 bg-green-600 transition-all ${
+                            isCurrentPage
+                              ? "w-full"
+                              : "w-0 group-hover:w-full"
+                          }`}
+                        ></span>
                       </Link>
                     </motion.div>
                   );
@@ -172,12 +181,10 @@ const NavBar = () => {
                 >
                   <Link
                     to="/community"
-                    className={`px-4 py-2 bg-green-600 text-white rounded-full shadow hover:bg-green-700 transform hover:scale-105 transition font-semibold text-center transition-all duration-300 ${
-                      isAuthPage ? "blur-sm opacity-50 pointer-events-none" : ""
-                    }`}
-                  >
-                    Join Our Community
-                  </Link>
+                  className="px-4 py-2 bg-green-600 text-white rounded-full shadow hover:bg-green-700 transform hover:scale-105 transition font-semibold text-center transition-all duration-300"
+                >
+                  Join Our Community
+                </Link>
                 </motion.div>
               </nav>
             </motion.div>

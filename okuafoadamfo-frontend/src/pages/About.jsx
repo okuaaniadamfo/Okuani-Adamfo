@@ -16,9 +16,9 @@ const expertImage = "👩🏿‍🔬";
 
 const STATS = [
   { number: "50K+", label: "Farmers Helped", icon: <Users className="w-6 h-6" /> },
-  { number: "98%", label: "Accuracy Rate", icon: <Award className="w-6 h-6" /> },
-  { number: "25+", label: "Crop Types", icon: <Leaf className="w-6 h-6" /> },
-  { number: "12", label: "Languages", icon: <Globe className="w-6 h-6" /> }
+  { number: "80%", label: "Accuracy Rate", icon: <Award className="w-6 h-6" /> },
+  { number: "38", label: "Crop Classes", icon: <Leaf className="w-6 h-6" /> },
+  { number: "7", label: "Languages", icon: <Globe className="w-6 h-6" /> }
 ];
 
 const FEATURES = [
@@ -196,6 +196,7 @@ const About = () => {
 
   return (
     <main className="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 min-h-screen">
+      <div className="pt-10" /> 
       {/* Hero Section */}
       <section className="relative pt-20 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-green-600/10 to-emerald-600/10"></div>
