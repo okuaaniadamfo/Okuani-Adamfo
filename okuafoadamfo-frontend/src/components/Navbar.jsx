@@ -38,11 +38,11 @@ const NavBar = () => {
 
   const navigationItems = [
     { to: "/", label: "Home" },
-    { to: "/predict", label: "Predict Disease" },
     { to: "/about", label: "About" },
+    { to: "/predict", label: "Predict Disease" },
+    { to: "/api", label: "API" },
     { to: "/login", label: "Login" },
     { to: "/register", label: "Register" },
-    { to: "/api", label: "API" },
   ];
 
   return (

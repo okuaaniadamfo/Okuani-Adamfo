@@ -171,7 +171,7 @@ const Api = () => {
               with industry-leading accuracy and speed.
             </p>
             <a 
-              href="https://plant-disease-api-zwyx.onrender.com/docs#/default/predict_image_predict__post"
+              href="https://okuaniadamfo.netlify.app/predict"
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-white text-green-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
