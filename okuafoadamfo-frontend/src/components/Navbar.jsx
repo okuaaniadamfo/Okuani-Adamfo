@@ -104,6 +104,7 @@ const NavBar = () => {
                   { to: "/about", label: "About" },
                   { to: "/login", label: "Login" },
                   { to: "/register", label: "Register" },
+                  { to: "/api", label: "API" },
                 ].map((link, i) => (
                   <motion.div
                     key={link.to}
@@ -129,10 +130,10 @@ const NavBar = () => {
                   transition={{ delay: 0.4 }}
                 >
                   <Link
-                    to="/translate"
+                    to="/community"
                     className="px-4 py-2 bg-green-600 text-white rounded-full shadow hover:bg-green-700 transform hover:scale-105 transition font-semibold text-center"
                   >
-                    Try Image Translator
+                    Join Our Community
                   </Link>
                 </motion.div>
               </nav>

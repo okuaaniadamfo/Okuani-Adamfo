@@ -7,6 +7,10 @@ import Home from "./pages/Home";
 import Error from "./components/Error";
 import About from "./pages/About";
 import PredictDisease from "./pages/Predictdisease";
+import Api from "./pages/Api";
+import PaymentPrompt from "./pages/PaymentPrompt";
+import Community from "./pages/Community";
+
 
 const App = () => (
   <BrowserRouter>
@@ -20,6 +24,11 @@ const App = () => (
           <Route path="/contact" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/api" element={<Api />} />
+          <Route path="/payment-prompt" element={<PaymentPrompt />} />
+          <Route path="/community" element={<Community />} />
+          {/* Add more routes as needed */}
+          {/* Catch-all route for 404 errors */}
           <Route path="*" element={<Error />} />
         </Routes>
       </div>
