@@ -350,8 +350,11 @@ const Login = () => {
             Don't have an account?{" "}
             <button
               className="font-semibold text-green-600 hover:text-green-800 transition-colors duration-200 hover:underline focus:outline-none focus:underline"
-              onClick={() => showNotification('info', 'Registration would redirect to signup page')}
-            >
+               onClick={() => {
+        showNotification("info", "Redirecting to signup page...");
+        navigate("/register");
+      }}
+      >
               Create Account
             </button>
           </p>
@@ -361,7 +364,7 @@ const Login = () => {
           By signing in, you agree to our{" "}
           <button
             className="text-green-600 hover:text-green-800 underline transition-colors duration-200 focus:outline-none"
-            onClick={() => showNotification('info', 'Terms of Service would open here')}
+            onClick={() => showNotification('info', 'Terms of Service would click here')}
           >
             Terms of Service
           </button>{" "}

@@ -320,7 +320,9 @@ export default function Register() {
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-600">
               Already have an account?{" "}
-              <button className="font-medium text-green-600 hover:text-green-800 transition-colors">
+              <button  
+               onClick={() => navigate("/login")}
+              className="font-medium text-green-600 hover:text-green-800 transition-colors" >
                 Sign In
               </button>
             </p>
