@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NavBar from "./components/Navbar";
@@ -7,6 +7,10 @@ import Home from "./pages/Home";
 import Error from "./components/Error";
 import About from "./pages/About";
 import PredictDisease from "./pages/Predictdisease";
+import Api from "./pages/Api";
+import PaymentPrompt from "./pages/PaymentPrompt";
+import Community from "./pages/Community";
+
 
 const App = () => (
   <BrowserRouter>
@@ -14,12 +18,22 @@ const App = () => (
       <NavBar />
       <div className="flex-grow">
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* Redirect root path to login */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          
+          {/* Move Home to a different route if you want to access it later */}
+          <Route path="/home" element={<Home />} />
+          
           <Route path="/predict" element={<PredictDisease />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/api" element={<Api />} />
+          <Route path="/payment-prompt" element={<PaymentPrompt />} />
+          <Route path="/community" element={<Community />} />
+          {/* Add more routes as needed */}
+          {/* Catch-all route for 404 errors */}
           <Route path="*" element={<Error />} />
         </Routes>
       </div>

@@ -67,7 +67,7 @@ const Footer = () => {
               title: "Quick Links",
               content: (
                 <ul className="space-y-2 text-sm sm:text-base">
-                  {["/", "/predict", "/translate", "/about", "/contact"].map(
+                  {["/", "/predict", "/about", "/api", "/community"].map(
                     (path, i) => (
                       <li key={i}>
                         <a
@@ -94,7 +94,7 @@ const Footer = () => {
                       href="mailto:support@cropguard.com"
                       className="text-gray-300 hover:text-white transition-colors"
                     >
-                      support@cropguard.com
+                      support@okuafoadamfo.com
                     </a>
                   </li>
                   <li className="flex items-center space-x-2">
@@ -103,7 +103,7 @@ const Footer = () => {
                       href="tel:+233123456789"
                       className="text-gray-300 hover:text-white transition-colors"
                     >
-                      +233 123 456 789
+                      +233 205 830 283
                     </a>
                   </li>
                 </ul>

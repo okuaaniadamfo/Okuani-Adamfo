@@ -1,10 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+  
+  // Check if we're on the login or register page
+  const isLoginPage = location.pathname === "/login";
+  const isRegisterPage = location.pathname === "/register";
+  const isAuthPage = isLoginPage || isRegisterPage;
+  
+  // Items that should remain active on auth pages
+  const getActiveItemsForAuthPage = () => {
+    if (isLoginPage) return ["/login", "/register"];
+    if (isRegisterPage) return ["/register", "/login"];
+    return [];
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +36,15 @@ const NavBar = () => {
     }),
   };
 
+  const navigationItems = [
+    { to: "/", label: "Home" },
+    { to: "/predict", label: "Predict Disease" },
+    { to: "/about", label: "About" },
+    { to: "/login", label: "Login" },
+    { to: "/register", label: "Register" },
+    { to: "/api", label: "API" },
+  ];
+
   return (
     <motion.header
       className={`p-4 fixed w-full top-0 z-50 shadow-md transition-all duration-300 ${
@@ -35,7 +57,10 @@ const NavBar = () => {
     >
       <div className="container mx-auto flex flex-wrap items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
+        <Link 
+          to="/" 
+          className="flex items-center gap-3 group"
+        >
           <motion.span
             whileHover={{ rotate: 10, scale: 1.1 }}
             transition={{ type: "spring", stiffness: 300 }}
@@ -75,7 +100,9 @@ const NavBar = () => {
         {/* Hamburger Icon */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden text-green-800 focus:outline-none"
+          className={`md:hidden text-green-800 focus:outline-none transition-all duration-300 ${
+            isAuthPage ? "blur-sm opacity-50" : ""
+          }`}
         >
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {isMobileMenuOpen ? (
@@ -98,41 +125,58 @@ const NavBar = () => {
               className="w-full md:w-auto mt-4 md:mt-0 overflow-hidden"
             >
               <nav className="flex flex-col md:flex-row gap-2 md:gap-6">
-                {[
-                  { to: "/", label: "Home" },
-                  { to: "/predict", label: "Predict Disease" },
-                  { to: "/about", label: "About" },
-                  { to: "/login", label: "Login" },
-                  { to: "/register", label: "Register" },
-                ].map((link, i) => (
-                  <motion.div
-                    key={link.to}
-                    custom={i}
-                    initial="hidden"
-                    animate="visible"
-                    variants={navItemVariants}
-                  >
-                    <Link
-                      to={link.to}
-                      className="text-green-800 font-medium relative group"
+                {navigationItems.map((link, i) => {
+                  const isCurrentPage = location.pathname === link.to;
+                  const activeItems = getActiveItemsForAuthPage();
+                  const isActiveOnAuthPage = activeItems.includes(link.to);
+                  const shouldBlur = isAuthPage && !isActiveOnAuthPage;
+                  
+                  return (
+                    <motion.div
+                      key={link.to}
+                      custom={i}
+                      initial="hidden"
+                      animate="visible"
+                      variants={navItemVariants}
                     >
-                      <span className="group-hover:text-green-600 transition-colors">
-                        {link.label}
-                      </span>
-                      <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-green-600 transition-all group-hover:w-full"></span>
-                    </Link>
-                  </motion.div>
-                ))}
+                      <Link
+                        to={link.to}
+                        className={`text-green-800 font-medium relative group transition-all duration-300 ${
+                          shouldBlur 
+                            ? "blur-sm opacity-40 pointer-events-none" 
+                            : isCurrentPage 
+                              ? "text-green-600 font-bold" 
+                              : ""
+                        }`}
+                      >
+                        <span className={`transition-colors ${
+                          isCurrentPage 
+                            ? "text-green-600" 
+                            : "group-hover:text-green-600"
+                        }`}>
+                          {link.label}
+                        </span>
+                        <span className={`absolute left-0 -bottom-1 h-0.5 bg-green-600 transition-all ${
+                          isCurrentPage 
+                            ? "w-full" 
+                            : "w-0 group-hover:w-full"
+                        }`}></span>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
                 >
                   <Link
-                    to="/translate"
-                    className="px-4 py-2 bg-green-600 text-white rounded-full shadow hover:bg-green-700 transform hover:scale-105 transition font-semibold text-center"
+                    to="/community"
+                    className={`px-4 py-2 bg-green-600 text-white rounded-full shadow hover:bg-green-700 transform hover:scale-105 transition font-semibold text-center transition-all duration-300 ${
+                      isAuthPage ? "blur-sm opacity-50 pointer-events-none" : ""
+                    }`}
                   >
-                    Try Image Translator
+                    Join Our Community
                   </Link>
                 </motion.div>
               </nav>
