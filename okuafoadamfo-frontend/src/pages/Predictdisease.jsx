@@ -7,9 +7,9 @@ import CornCommonRust1 from "../assets/CornCommonRust1.JPG";
 
 
 const SAMPLE_IMAGES = [
-  { url: AppleScab1, label: "Apple Scab" },
-  { url: TomatoEarlyBlight1, label: "Tomato Early Blight" },
-  { url: CornCommonRust1, label: "Corn Common Rust" }
+  { url: AppleScab1, label: "Apple Leaf" },
+  { url: TomatoEarlyBlight1, label: "Tomato Leaf" },
+  { url: CornCommonRust1, label: "Corn Leaf" }
 ];
 
 export default function PredictDisease() {
@@ -384,14 +384,19 @@ export default function PredictDisease() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 flex flex-col items-center py-10 px-4 sm:px-6 lg:px-12 pt-[90px]">
-      <motion.h1
+      <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-green-800 mb-8 text-center max-w-2xl leading-tight"
+        className="text-center mb-8 max-w-4xl"
       >
-        Crop Disease Prediction
-      </motion.h1>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent mb-4">
+          🌱 Crop Disease Predictor
+        </h1>
+        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          Upload an image of your crop or describe symptoms to get instant disease diagnosis and treatment recommendations
+        </p>
+      </motion.div>
+
 
       <AnimatePresence>
         {error && (
@@ -621,7 +626,7 @@ export default function PredictDisease() {
                 <strong>Disease:</strong> <span className="font-medium text-green-700">{diagnosis.prediction.raw_response.predicted_class}</span>
               </p>
               <p>
-                <strong>Confidence:</strong> <span className="font-medium text-green-700">{(diagnosis.prediction.raw_response.confidence * 100).toFixed(2)}%</span>
+                <strong>Confidence:</strong> <span className="font-medium text-green-700">{diagnosis.prediction.raw_response.confidence}</span>
               </p>
               <p>
                 <strong>Description:</strong> {diagnosis.prediction.raw_response.description}
@@ -654,8 +659,9 @@ export default function PredictDisease() {
               >
                 Translate Solutions
               </motion.button>
-
-              {languagesWithSpeakers.includes(selectedLanguage) && (
+            </div>
+            <div className="mt-6 flex justify-center">  
+               {languagesWithSpeakers.includes(selectedLanguage) && (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -668,6 +674,9 @@ export default function PredictDisease() {
                 </motion.button>
               )}
             </div>
+
+             
+            
 
             <AnimatePresence>
               {solutionAudioBase64 && (

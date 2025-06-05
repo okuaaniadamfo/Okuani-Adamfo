@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
 import { motion, AnimatePresence, useScroll, useTransform, useInView } from "framer-motion";
 import { ChevronRight, Play, Users, TrendingUp, Globe, Leaf, Camera, BookOpen, ArrowRight, Check, Star } from "lucide-react";
 import woman1 from "../assets/woman1.jpg";
@@ -151,7 +152,14 @@ const StatCounter = ({ value, label, delay = 0 }) => {
 };
 
 // Enhanced Hero Section
+// Replace your existing HeroSection component with this fixed version
+
 const HeroSection = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
+
   const [current, setCurrent] = useState(0);
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
@@ -176,7 +184,7 @@ const HeroSection = () => {
         }} />
       </div>
 
-      <motion.div 
+      <motion.div
         className="relative z-10 max-w-7xl mx-auto px-6 py-20"
         style={{ y }}
       >
@@ -210,12 +218,13 @@ const HeroSection = () => {
                 </p>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons - FIXED */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <motion.button
                   className="group flex items-center gap-3 px-8 py-4 bg-white text-green-800 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => handleNavigate(currentItem.primaryLink.to)}
                 >
                   <currentItem.primaryLink.icon className="h-5 w-5" />
                   {currentItem.primaryLink.label}
@@ -226,6 +235,7 @@ const HeroSection = () => {
                   className="group flex items-center gap-3 px-8 py-4 bg-transparent border-2 border-white text-white rounded-2xl font-semibold text-lg hover:bg-white hover:text-green-800 transition-all duration-300"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => handleNavigate(currentItem.secondaryLink.to)}
                 >
                   <currentItem.secondaryLink.icon className="h-5 w-5" />
                   {currentItem.secondaryLink.label}

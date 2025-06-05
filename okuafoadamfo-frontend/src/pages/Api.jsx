@@ -102,7 +102,7 @@ const PlanCard = ({ plan }) => {
         
         <div className="mb-4">
           <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
+            <span className="text-4xl font-bold text-gray-900">₵{plan.price}</span>
             <span className="text-gray-600">/month</span>
           </div>
           <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
@@ -158,6 +158,7 @@ const WorkflowStep = ({ step, isLast }) => (
 const Api = () => {
   return (
     <div className="min-h-screen bg-gray-50">
+      <div className="pt-10"></div>
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-green-600 to-green-800 text-white">
         <div className="max-w-6xl mx-auto px-6 py-16">
