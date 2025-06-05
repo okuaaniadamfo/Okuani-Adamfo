@@ -31,10 +31,11 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/api" element={<Api />} />
           <Route path="/payment-prompt" element={<PaymentPrompt />} />
-          <Route path="/community" element={<Community />} />
+          <Route path="/community" element={<Community />} /> 
           {/* Add more routes as needed */}
-          {/* Catch-all route for 404 errors */}
+
           <Route path="*" element={<Error />} />
+
         </Routes>
       </div>
       <Footer />

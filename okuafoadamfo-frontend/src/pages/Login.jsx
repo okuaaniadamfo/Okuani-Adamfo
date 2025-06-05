@@ -364,7 +364,7 @@ const Login = () => {
           By signing in, you agree to our{" "}
           <button
             className="text-green-600 hover:text-green-800 underline transition-colors duration-200 focus:outline-none"
-            onClick={() => showNotification('info', 'Terms of Service would open here')}
+            onClick={() => showNotification('info', 'Terms of Service would click here')}
           >
             Terms of Service
           </button>{" "}
